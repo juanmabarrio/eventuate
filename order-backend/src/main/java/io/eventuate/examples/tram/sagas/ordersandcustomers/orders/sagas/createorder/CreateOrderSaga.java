@@ -7,6 +7,9 @@ import io.eventuate.examples.tram.sagas.ordersandcustomers.customers.api.replies
 import io.eventuate.examples.tram.sagas.ordersandcustomers.orders.domain.Order;
 import io.eventuate.examples.tram.sagas.ordersandcustomers.orders.domain.OrderRepository;
 import io.eventuate.examples.tram.sagas.ordersandcustomers.orders.domain.RejectionReason;
+import io.eventuate.examples.tram.sagas.ordersandcustomers.product.api.commands.ReserveProductCommand;
+import io.eventuate.examples.tram.sagas.ordersandcustomers.product.api.replies.ProductNotAvailable;
+import io.eventuate.examples.tram.sagas.ordersandcustomers.product.api.replies.ProductNotFound;
 import io.eventuate.tram.commands.consumer.CommandWithDestination;
 import io.eventuate.tram.sagas.orchestration.SagaDefinition;
 import io.eventuate.tram.sagas.simpledsl.SimpleSaga;
@@ -30,6 +33,10 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
             .onReply(CustomerNotFound.class, this::handleCustomerNotFound)
             .onReply(CustomerCreditLimitExceeded.class, this::handleCustomerCreditLimitExceeded)
           .step()
+            .invokeParticipant(this::reserveProduct)
+            .onReply(ProductNotFound.class, this::handleProductNotFound)
+            .onReply(ProductNotAvailable.class, this::handleProductNotAvailable)
+          .step()
             .invokeLocal(this::approve)
           .build();
 
@@ -37,8 +44,16 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
     data.setRejectionReason(RejectionReason.UNKNOWN_CUSTOMER);
   }
 
+  private void handleProductNotFound(CreateOrderSagaData data, ProductNotFound reply) {
+    data.setRejectionReason(RejectionReason.UNKNOWN_PRODUCT);
+  }
+
   private void handleCustomerCreditLimitExceeded(CreateOrderSagaData data, CustomerCreditLimitExceeded reply) {
     data.setRejectionReason(RejectionReason.INSUFFICIENT_CREDIT);
+  }
+
+  private void handleProductNotAvailable(CreateOrderSagaData data, ProductNotAvailable reply) {
+    data.setRejectionReason(RejectionReason.INSUFICIENT_STOCK);
   }
 
 
@@ -59,6 +74,15 @@ public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
     Money orderTotal = data.getOrderDetails().getOrderTotal();
     return send(new ReserveCreditCommand(customerId, orderId, orderTotal))
             .to("customerService")
+            .build();
+  }
+
+  private CommandWithDestination reserveProduct(CreateOrderSagaData data) {
+    long orderId = data.getOrderId();
+    Long productId = data.getOrderDetails().getProductId();
+    Long quantity = data.getOrderDetails().getQuantity();
+    return send(new ReserveProductCommand(productId, orderId, quantity))
+            .to("productService")
             .build();
   }
 

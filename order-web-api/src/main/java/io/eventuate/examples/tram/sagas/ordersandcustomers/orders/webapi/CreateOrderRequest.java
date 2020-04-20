@@ -6,6 +6,8 @@ import io.eventuate.examples.tram.sagas.ordersandcustomers.commondomain.Money;
 public class CreateOrderRequest {
   private Money orderTotal;
   private Long customerId;
+  private Long productId;
+  private Long quantity;
 
   public CreateOrderRequest() {
   }
@@ -13,6 +15,8 @@ public class CreateOrderRequest {
   public CreateOrderRequest(Long customerId, Money orderTotal) {
     this.customerId = customerId;
     this.orderTotal = orderTotal;
+    this.productId = productId;
+    this.quantity = quantity;
   }
 
   public Money getOrderTotal() {
@@ -21,5 +25,13 @@ public class CreateOrderRequest {
 
   public Long getCustomerId() {
     return customerId;
+  }
+
+  public Long getProductId() {
+    return productId;
+  }
+
+  public Long getQuantity() {
+    return quantity;
   }
 }

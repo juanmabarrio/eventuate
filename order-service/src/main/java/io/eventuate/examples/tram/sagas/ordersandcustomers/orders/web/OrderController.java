@@ -28,7 +28,12 @@ public class OrderController {
 
   @RequestMapping(value = "/orders", method = RequestMethod.POST)
   public CreateOrderResponse createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
-    Order order = orderService.createOrder(new OrderDetails(createOrderRequest.getCustomerId(), createOrderRequest.getOrderTotal()));
+    Order order = orderService.createOrder(new OrderDetails(
+            createOrderRequest.getCustomerId(),
+            createOrderRequest.getOrderTotal(),
+            createOrderRequest.getProductId(),
+            createOrderRequest.getQuantity())
+    );
     return new CreateOrderResponse(order.getId());
   }
 
