@@ -2,44 +2,28 @@ version: 2
 jobs:
   build:
     machine: true
-    working_directory: ~/eventuate-tram-examples-java-spring-todo-list
+    working_directory: ~/eventuate-tram-sagas-examples-customers-and-orders
     steps:
       - checkout
       - restore_cache:
-          key: eventuate-tram-examples-java-spring-todo-list-{{ checksum "multi-module/build.gradle" }}
-      - run:
-          command: |
-            export TERM=dumb
-            cd single-module
-            ./gradlew testClasses
-            cd ../multi-module
-            ./gradlew testClasses
+          keys:
+            - eventuate-tram-sagas-examples-customers-and-orders-{{ checksum "gradle.properties" }}
+            - eventuate-tram-sagas-examples-customers-and-orders-
+      - run: TERM=dumb ./gradlew testClasses
       - save_cache:
           paths:
             - ~/.gradle
-          key: eventuate-tram-examples-java-spring-todo-list-{{ checksum "multi-module/build.gradle" }}
+          key: eventuate-tram-sagas-examples-customers-and-orders-{{ checksum "gradle.properties" }}
       - run:
           command: |
-            export TERM=dumb
-            cd single-module
+            . ./.circleci/setenv-circle-ci.sh
             ./build-and-test-all-mysql.sh
       - run:
           command: |
-            export TERM=dumb
-            cd single-module
+            . ./.circleci/setenv-circle-ci.sh
             ./build-and-test-all-postgres.sh
       - run:
-          command: |
-            export TERM=dumb
-            cd multi-module
-            ./build-and-test-all-mysql.sh
-      - run:
-          command: |
-            export TERM=dumb
-            cd multi-module
-            ./build-and-test-all-postgres.sh
-      - run:
-          name: Save test results
+          name: Save JUNIT test results
           command: |
             mkdir -p ~/junit/
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
