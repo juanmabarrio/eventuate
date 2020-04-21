@@ -1,5 +1,30 @@
 
-= Eventuate Tram Sagas Customers and Orders
+= Master Cloud Apps - Juan Manuel Barrio - Eventuate Tram Sagas Customers and Orders And Products
+---
+---
+
+---
+
+Puedes acceder al repo para ver los cambios que he hecho: https://github.com/juanmabarrio/eventuate.git
+
+
+He modificado el proyecto para poder manejar productos y su stock. Para eso he partido del microservicio de Customers porque era el que más se acerca a lo que sería Products.
+
+Los cambios respecto al original se ven en los proyectos que empiezan por "product", y también en los proyectos ya existentes para introducir productos con su nombre y su stock. e.g. Para el servicio de orders tuve que añadir el productId que se solicita y la cantidad del mismo.
+
+El cambio principal aparte de añadir el servicio de productos es modificar la Saga para incorporar la logica que chequea la existencia del producto y su disponibilidad en cuanto a stock.
+
+No pude terminar la parte del API gateway pero al menos creo que la he entendido.
+
+Como comentario, la práctica es interesante, y hasta que no he bajado al barro de la refactorización no entendía como funcionaba esto. Gradle no ha supuesto ningún problema, solo ha sido copiar y pegar los ya existentes y cambiar el nombre y añadir las dependencias correspondientes.
+
+Me ha faltado probar los escenarios de caida para comprobar que la aplicación se recupera. Esta es la primera práctica que he podido usar Docker (no pude entregar la de Docker Compose) y me ha servido para hincarle el diente. La verdad es que es flipante levantar el pedazo de entorno con todas esas aplicaciones con dos comanditos. Y me corre en un Unbutu virtual con 8 gigas, sin más problema.
+
+
+
+---
+
+
 
 This application  demonstrates how to maintain data consistency in an Java/JDBC/JPA-based  microservice architecture using http://microservices.io/patterns/data/saga.html[sagas].
 
